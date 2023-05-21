@@ -1,0 +1,39 @@
+[package]
+name = "cw-groth16"
+version = "0.1.0"
+description = "A cosmos wasm contract with groth16 proving system"
+authors = ["VegeBun-csj <csj1071285741@gmail.com>"]
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+[profile.release]
+opt-level = 3
+debug = false
+rpath = false
+lto = true
+debug-assertions = false
+codegen-units = 1
+panic = 'abort'
+incremental = false
+overflow-checks = true
+
+[features]
+backtraces = ["cosmwasm-std/backtraces"]
+# use library feature to disable all instantiate/execute/query exports
+library = []
+default = ["std"]
+std = [
+	"bellman-verifier/std",
+]
+
+[dependencies]
+cosmwasm-std = "1.1.0"
+cosmwasm-storage = "1.1.0"
+cw-storage-plus = "0.13.4"
+cosmwasm-schema = "1.1.0"
+thiserror = "1.0.31"
+bellman-verifier = { git = "https://github.com/DoraFactory/snarkjs-bellman-adapter.git", default-features = false, version = "0.1.0"}
