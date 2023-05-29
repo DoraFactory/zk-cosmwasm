@@ -147,7 +147,7 @@ pub fn execute_publish_proof(
 
 
 #[cfg_attr(not(feature = "library"), entry_point)]
-pub fn query(deps: Deps, msg: QueryMsg) -> StdResult<Binary> {
+pub fn query(deps: Deps, _env: Env, msg: QueryMsg) -> StdResult<Binary> {
     match msg {
         QueryMsg::Config {} => to_binary::<ConfigResponse>(&CONFIG.load(deps.storage)?.into()),
         QueryMsg::IssuerZkeys { address } => to_binary(&query_issuer_zkeys(deps, address)?),

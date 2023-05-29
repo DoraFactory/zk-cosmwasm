@@ -1,0 +1,1 @@
+e0457c589a6cbbfb945723ad3d7e3ceef6819283ccc0066d36b1d972a331b19f  ./target/wasm32-unknown-unknown/release/cw_groth16.wasm

@@ -9,7 +9,7 @@ mod test_module {
     use crate::state::Config;
 
     fn assert_config_state(deps: Deps, expected: Config) {
-        let res = query(deps, QueryMsg::Config {}).unwrap();
+        let res = query(deps, mock_env(), QueryMsg::Config {}).unwrap();
         let value: Config = from_binary(&res).unwrap();
         assert_eq!(value, expected);
     }
@@ -124,6 +124,7 @@ mod test_module {
     fn query_zkeys(deps: Deps) {
         let res = query(
             deps, 
+            mock_env(),
             QueryMsg::IssuerZkeys { address: "alice_key".to_string() }
         ).unwrap();
 
@@ -135,6 +136,7 @@ mod test_module {
     fn query_verification_result(deps: Deps) {
         let res = query(
             deps,
+            mock_env(),
             QueryMsg::ProofResult { issuer_address: "alice_key".to_string(), prover_address: "bob_key".to_string() }
         ).unwrap();
 
