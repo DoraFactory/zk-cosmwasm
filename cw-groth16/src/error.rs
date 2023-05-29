@@ -32,4 +32,7 @@ pub enum ContractError {
 
     #[error("invalid proof, verify failed")]
     InvalidProof {},
+
+    #[error("this account({difficuty_issuer}) didn't issue difficulty problem")]
+    NonPublishDifficulty { difficuty_issuer: String },
 }

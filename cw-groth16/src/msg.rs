@@ -11,17 +11,64 @@ pub struct InstantiateMsg {
 #[cw_serde]
 pub enum ExecuteMsg {
     Zkeys {
-        public_signal: Vec<u8>,
-        vk_alpha1: Vec<u8>,
-        vk_beta_2: Vec<u8>,
-        vk_gamma_2: Vec<u8>,
-        vk_delta_2: Vec<u8>,
-        vk_ic0: Vec<u8>,
-        vk_ic1: Vec<u8>
+        public_signal: String,
+        vk_alpha1: String,
+        vk_beta_2: String,
+        vk_gamma_2: String,
+        vk_delta_2: String,
+        vk_ic0: String,
+        vk_ic1: String
     },
     Proof {
-        proof_a: Vec<u8>,
-        proof_b: Vec<u8>,
-        proof_c: Vec<u8>,
+        difficuty_issuer: String,
+        proof_a: String,
+        proof_b: String,
+        proof_c: String
     },
+}
+
+#[cw_serde]
+#[derive(QueryResponses)]
+pub enum QueryMsg {
+    #[returns(ConfigResponse)]
+    Config {},
+    #[returns(ZkeysResponse)]
+    IssuerZkeys { address: String},
+    #[returns(ProofResponse)]
+    ProofResult {issuer_address: String, prover_address: String}
+}
+
+#[cw_serde]
+pub struct ConfigResponse {
+    pub set_zkeys_price: Option<Coin>,
+    pub publish_proof_price: Option<Coin>,
+}
+
+impl From<Config> for ConfigResponse {
+    fn from(config: Config) -> ConfigResponse {
+        ConfigResponse {
+            set_zkeys_price: config.zkeys_price,
+            publish_proof_price: config.proof_price,
+        }
+    }
+}
+
+
+#[cw_serde]
+pub struct ProofResponse {
+    pub proof_a: String,
+    pub proof_b: String,
+    pub proof_c: String,
+    pub is_valid: bool,
+}
+
+#[cw_serde]
+pub struct ZkeysResponse {
+    pub public_signal: String,
+    pub vk_alpha1: String,
+    pub vk_beta_2: String,
+    pub vk_gamma_2: String,
+    pub vk_delta_2: String,
+    pub vk_ic0: String,
+    pub vk_ic1: String
 }

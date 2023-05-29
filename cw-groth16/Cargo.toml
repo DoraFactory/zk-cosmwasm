@@ -37,3 +37,7 @@ cw-storage-plus = "0.13.4"
 cosmwasm-schema = "1.1.0"
 thiserror = "1.0.31"
 bellman-verifier = { git = "https://github.com/DoraFactory/snarkjs-bellman-adapter.git", default-features = false, version = "0.1.0"}
+hex = "0.4"
+bls12_381 = "0.7.0"
+ff = "0.12.0"
+pairing = { version = "0.22", default-features = false }
