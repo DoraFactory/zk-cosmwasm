@@ -161,12 +161,12 @@ fn query_issuer_zkeys(deps: Deps, address: String) -> StdResult<ZkeysResponse> {
     let zkeys = ZKEYS.load(deps.storage, &issuer_addr)?;
     Ok(ZkeysResponse {
         public_signal: zkeys.public_signal,
-        vk_alpha1: String::from_utf8(zkeys.vkeys.alpha_1).unwrap(),
-        vk_beta_2: String::from_utf8(zkeys.vkeys.beta_2).unwrap(),
-        vk_gamma_2: String::from_utf8(zkeys.vkeys.gamma_2).unwrap(),
-        vk_delta_2: String::from_utf8(zkeys.vkeys.delta_2).unwrap(),
-        vk_ic0: String::from_utf8(zkeys.vkeys.ic0).unwrap(),
-        vk_ic1: String::from_utf8(zkeys.vkeys.ic1).unwrap()
+        vk_alpha1: hex::encode(zkeys.vkeys.alpha_1),
+        vk_beta_2: hex::encode(zkeys.vkeys.beta_2),
+        vk_gamma_2: hex::encode(zkeys.vkeys.gamma_2),
+        vk_delta_2: hex::encode(zkeys.vkeys.delta_2),
+        vk_ic0: hex::encode(zkeys.vkeys.ic0),
+        vk_ic1: hex::encode(zkeys.vkeys.ic1)
     })
 }
 
@@ -176,9 +176,9 @@ fn query_proof_result(deps: Deps, issuer_address: String, prover_address: String
 
     let proof_info = PROVERLIST.load(deps.storage, (&issuer_addr, &prover_addr))?;
     Ok(ProofResponse {
-        proof_a: String::from_utf8(proof_info.proof.pi_a).unwrap(),
-        proof_b: String::from_utf8(proof_info.proof.pi_b).unwrap(),
-        proof_c: String::from_utf8(proof_info.proof.pi_c).unwrap(),
+        proof_a: hex::encode(proof_info.proof.pi_a),
+        proof_b: hex::encode(proof_info.proof.pi_b),
+        proof_c: hex::encode(proof_info.proof.pi_c),
         is_valid: proof_info.is_valid,
     })
 }

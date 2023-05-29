@@ -40,15 +40,15 @@ pub enum QueryMsg {
 
 #[cw_serde]
 pub struct ConfigResponse {
-    pub set_zkeys_price: Option<Coin>,
-    pub publish_proof_price: Option<Coin>,
+    pub zkeys_price: Option<Coin>,
+    pub proof_price: Option<Coin>,
 }
 
 impl From<Config> for ConfigResponse {
     fn from(config: Config) -> ConfigResponse {
         ConfigResponse {
-            set_zkeys_price: config.zkeys_price,
-            publish_proof_price: config.proof_price,
+            zkeys_price: config.zkeys_price,
+            proof_price: config.proof_price,
         }
     }
 }
