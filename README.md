@@ -1,8 +1,8 @@
 # zk-cosmwasm
-A cosmos wasm contract using zero knowledge proof
+A CosmWasm contract verifying zero knowledge proof
 
 ## cw-groth16
-This wasm contract module using groth16 proving system to verify the proof gerenated by snarkjs.
+This wasm contract verifies Groth16 proofs, using the previously developed [SnarkJS-Bellman Adapter](https://github.com/DoraFactory/snarkjs-bellman-adapter).
 
 ### Environment: 
 - OS: Mac M1
