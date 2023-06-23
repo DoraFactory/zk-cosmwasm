@@ -101,27 +101,27 @@ where
 
     let alpha1_affine = G1Uncompressed::to_g1_uncompressed(alpha1)
         .into_affine()
-        .map_err(|_| ContractError::ErrorProof {})
+        .map_err(|_| ContractError::ErrorVerificationKey {})
         .unwrap();
     let beta2_affine = G2Uncompressed::to_g2_uncompressed(beta2)
         .into_affine()
-        .map_err(|_| ContractError::ErrorProof {})
+        .map_err(|_| ContractError::ErrorVerificationKey {})
         .unwrap();
     let gamma2_affine = G2Uncompressed::to_g2_uncompressed(gamma2)
         .into_affine()
-        .map_err(|_| ContractError::ErrorProof {})
+        .map_err(|_| ContractError::ErrorVerificationKey {})
         .unwrap();
     let delta2_affine = G2Uncompressed::to_g2_uncompressed(delta2)
         .into_affine()
-        .map_err(|_| ContractError::ErrorProof {})
+        .map_err(|_| ContractError::ErrorVerificationKey {})
         .unwrap();
     let ic0_affine = G1Uncompressed::to_g1_uncompressed(ic_0)
         .into_affine()
-        .map_err(|_| ContractError::ErrorProof {})
+        .map_err(|_| ContractError::ErrorVerificationKey {})
         .unwrap();
     let ic1_affine = G1Uncompressed::to_g1_uncompressed(ic_1)
         .into_affine()
-        .map_err(|_| ContractError::ErrorProof {})
+        .map_err(|_| ContractError::ErrorVerificationKey {})
         .unwrap();
 
     ic.push(ic0_affine);
