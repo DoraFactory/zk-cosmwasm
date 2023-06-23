@@ -1,8 +1,8 @@
 # zk-cosmwasm
-A cosmos wasm contract using zero knowledge proof
+A CosmWasm contract verifying zero knowledge proof
 
 ## cw-groth16
-This wasm contract module using groth16 proving system to verify the proof gerenated by snarkjs.
+This cosmwasm contract verifies Groth16 proofs, using the previously developed [SnarkJS-Bellman Adapter](https://github.com/DoraFactory/snarkjs-bellman-adapter).
 
 ### Environment: 
 - OS: Mac M1
@@ -77,7 +77,7 @@ wasmd tx wasm execute $CONTRACT "$ZKEYS" --amount 100umlg --from abcd $TXFLAG -y
 Here, our tx_hash is `3D7ACDF4FAF97AA10CFE838F120645C3DF8E0686FD2F2A0FFC427E1A6D306AA0`
 
 6. Verify the proof
-> We will use another account called wallet to give proof to verify to demonstrate that he know how to how to solve the difficulty
+> We will use another account called wallet to give proof to verify to demonstrate that he know how to solve the difficulty
 
 ```shell
 export PROOF='{"proof": {"difficuty_issuer": "wasm1a7lnnfj2t67w3dsr2x6w20yfv5lawmvv74suu9", "proof_a": "020fcbc0e3ae8e322a5cb6fb707d2511878eda020096f8f421cf75c263e43c2ee6d2392b6e03410d5555fd80628581f1054ce4ab8c9c277ce545b05efc145a1aeecd84038c67972a55367b2e1181c19311a7b3a3aa2b2cd70c4823db3ae498a0", "proof_b": "1545a18455dd6e1abaf4e27f3ee198bb5abb199b0650030593ce0d03b7cc59d458864acc3db510efe2300f778aa797e017c8d8fa15654b1995f0e659910bbdf8c0d88ef6801e1615e664b559daa8fd139b88569e95e6058d077fb5ae6aafe93116d6254de64023b0e8b41b145bb43d53bbee70486de6dd67c00f4f05c5e6a563f3b808b942184fa3488ace3a57e90016106fcc94b8d3d95c52ca1a616348b9095e7df0ba97156e4e93e787474d19e0ea423eda0bf5ebc81efce1b12f4c22ee00", "proof_c": "10406a2ada964c701668b06be2e3011bf22d9b6c6c0731f5b042a6b7ccf777d58b8e8b8b19fd711953b170d591981eb80f373990aee796b4797bb6ee63f57cbc402ce8dc2360ef18e40c5a44e8d2948e94d6c7f226f384f6cf4c0190de295b87"}}'
