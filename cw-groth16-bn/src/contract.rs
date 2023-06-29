@@ -75,13 +75,16 @@ pub fn execute_set_zkeys(
     // address
     // let key = info.sender.as_str().as_bytes();
     let vkeys = VkeyStr {
-        alpha_1: hex::decode(vk_alpha1).unwrap(),
-        beta_2: hex::decode(vk_beta_2).unwrap(),
-        gamma_2: hex::decode(vk_gamma_2).unwrap(),
-        delta_2: hex::decode(vk_delta_2).unwrap(),
-        ic0: hex::decode(vk_ic0).unwrap(),
-        ic1: hex::decode(vk_ic1).unwrap(),
+        alpha_1: hex::decode(vk_alpha1).map_err(|_| ContractError::HexDecodingError{})?,
+        beta_2: hex::decode(vk_beta_2).map_err(|_| ContractError::HexDecodingError{})?,
+        gamma_2: hex::decode(vk_gamma_2).map_err(|_| ContractError::HexDecodingError{})?,
+        delta_2: hex::decode(vk_delta_2).map_err(|_| ContractError::HexDecodingError{})?,
+        ic0: hex::decode(vk_ic0).map_err(|_| ContractError::HexDecodingError{})?,
+        ic1: hex::decode(vk_ic1).map_err(|_| ContractError::HexDecodingError{})?,
     };
+
+    let _ = parse_vkey::<Bn256>(vkeys.clone())?;
+
     let zkeys = ZkeysStr {
         vkeys,
         public_signal
@@ -118,15 +121,15 @@ pub fn execute_publish_proof(
 
     // verify the proof
     let proof_str = ProofStr {
-        pi_a: hex::decode(proof_a).unwrap(),
-        pi_b: hex::decode(proof_b).unwrap(),
-        pi_c: hex::decode(proof_c).unwrap(),
+        pi_a: hex::decode(proof_a).map_err(|_| ContractError::HexDecodingError{})?,
+        pi_b: hex::decode(proof_b).map_err(|_| ContractError::HexDecodingError{})?,
+        pi_c: hex::decode(proof_c).map_err(|_| ContractError::HexDecodingError{})?,
     };
 
     let pof = parse_proof::<Bn256>(proof_str.clone())?;
     let vkey = parse_vkey::<Bn256>(vkeys_str)?;
     let pvk = prepare_verifying_key(&vkey);
-    let is_passed = verify_proof(&pvk, &pof, &[Fr::from_str(&public_inputs).unwrap()]).is_ok();
+    let is_passed = verify_proof(&pvk, &pof, &[Fr::from_str(&public_inputs).unwrap()]).map_err(|_| ContractError::ErrorVerificationKey{})?;
 
     if is_passed {
         let proof_info = ProofInfo {

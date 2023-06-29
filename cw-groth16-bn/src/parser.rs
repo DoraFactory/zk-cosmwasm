@@ -30,16 +30,13 @@ where
 
     let pia_affine: G1Affine = G1Uncompressed::to_g1_uncompressed(a_arr)
         .into_affine()
-        .map_err(|_| ContractError::ErrorProof {})
-        .unwrap();
+        .map_err(|_| ContractError::ErrorProof {})?;
     let pib_affine: G2Affine = G2Uncompressed::to_g2_uncompressed(b_arr)
         .into_affine()
-        .map_err(|_| ContractError::ErrorProof {})
-        .unwrap();
+        .map_err(|_| ContractError::ErrorProof {})?;
     let pic_affine: G1Affine = G1Uncompressed::to_g1_uncompressed(c_arr)
         .into_affine()
-        .map_err(|_| ContractError::ErrorProof {})
-        .unwrap();
+        .map_err(|_| ContractError::ErrorProof {})?;
 
     Ok(Proof {
         a: pia_affine,
@@ -101,28 +98,22 @@ where
 
     let alpha1_affine = G1Uncompressed::to_g1_uncompressed(alpha1)
         .into_affine()
-        .map_err(|_| ContractError::ErrorVerificationKey {})
-        .unwrap();
+        .map_err(|_| ContractError::ErrorVerificationKey {})?;
     let beta2_affine = G2Uncompressed::to_g2_uncompressed(beta2)
         .into_affine()
-        .map_err(|_| ContractError::ErrorVerificationKey {})
-        .unwrap();
+        .map_err(|_| ContractError::ErrorVerificationKey {})?;
     let gamma2_affine = G2Uncompressed::to_g2_uncompressed(gamma2)
         .into_affine()
-        .map_err(|_| ContractError::ErrorVerificationKey {})
-        .unwrap();
+        .map_err(|_| ContractError::ErrorVerificationKey {})?;
     let delta2_affine = G2Uncompressed::to_g2_uncompressed(delta2)
         .into_affine()
-        .map_err(|_| ContractError::ErrorVerificationKey {})
-        .unwrap();
+        .map_err(|_| ContractError::ErrorVerificationKey {})?;
     let ic0_affine = G1Uncompressed::to_g1_uncompressed(ic_0)
         .into_affine()
-        .map_err(|_| ContractError::ErrorVerificationKey {})
-        .unwrap();
+        .map_err(|_| ContractError::ErrorVerificationKey {})?;
     let ic1_affine = G1Uncompressed::to_g1_uncompressed(ic_1)
         .into_affine()
-        .map_err(|_| ContractError::ErrorVerificationKey {})
-        .unwrap();
+        .map_err(|_| ContractError::ErrorVerificationKey {})?;
 
     ic.push(ic0_affine);
     ic.push(ic1_affine);

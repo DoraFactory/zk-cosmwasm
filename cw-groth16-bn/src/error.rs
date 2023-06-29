@@ -1,7 +1,7 @@
 use cosmwasm_std::StdError;
 use thiserror::Error;
 
-#[derive(Error, Debug)]
+#[derive(Error, Debug, PartialEq)]
 pub enum ContractError {
     #[error("{0}")]
     Std(#[from] StdError),
@@ -35,4 +35,7 @@ pub enum ContractError {
 
     #[error("this account({difficuty_issuer}) didn't issue difficulty problem")]
     NonPublishDifficulty { difficuty_issuer: String },
+
+    #[error("invalid hex format")]
+    HexDecodingError {},
 }
