@@ -28,5 +28,5 @@ thiserror = "1.0.31"
 
 bellman-ce-verifier = { git = "https://github.com/DoraFactory/snarkjs-bellman-adapter.git", default-features = false, version = "0.1.0"}
 hex = "0.4"
-pairing_ce = { git = "https://github.com/VegeBun-csj/pairing.git" }
+pairing_ce = { git = "https://github.com/matter-labs/pairing.git" }
 ff_ce = "0.14.3"
