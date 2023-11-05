@@ -22,9 +22,6 @@ pub enum ExecuteMsg {
     },
     Proof {
         difficuty_issuer: String,
-/*         proof_a: String,
-        proof_b: String,
-        proof_c: String */
         num_inputs: usize,
         n: usize,
         input_values: Vec<String>,
@@ -36,7 +33,7 @@ pub enum ExecuteMsg {
         grand_product_at_z_omega: String,
         quotient_polynomial_at_z: String,
         linearization_polynomial_at_z: String,
-        permutation_polynomials_at_z: String,
+        permutation_polynomials_at_z: Vec<String>,
         opening_at_z_proof: String,
         opening_at_z_omega_proof: String,
     },
@@ -71,19 +68,31 @@ impl From<Config> for ConfigResponse {
 
 #[cw_serde]
 pub struct ProofResponse {
-/*     pub proof_a: String,
-    pub proof_b: String,
-    pub proof_c: String, */
+    pub num_inputs: usize,
+    pub n: usize,
+    pub input_values: Vec<String>,
+    pub wire_commitments: Vec<String>,
+    pub grand_product_commitment: String,
+    pub quotient_poly_commitments: Vec<String>,
+    pub wire_values_at_z: Vec<String>,
+    pub wire_values_at_z_omega: Vec<String>,
+    pub grand_product_at_z_omega: String,
+    pub quotient_polynomial_at_z: String,
+    pub linearization_polynomial_at_z: String,
+    pub permutation_polynomials_at_z: Vec<String>,
+    pub opening_at_z_proof: String,
+    pub opening_at_z_omega_proof: String,
     pub is_valid: bool,
 }
 
 #[cw_serde]
 pub struct ZkeysResponse {
     pub public_signal: String,
-/*     pub vk_alpha1: String,
-    pub vk_beta_2: String,
-    pub vk_gamma_2: String,
-    pub vk_delta_2: String,
-    pub vk_ic0: String,
-    pub vk_ic1: String */
+    pub n: usize,
+    pub num_inputs: usize,
+    pub selector_commitments: Vec<String>,
+    pub next_step_selector_commitments: Vec<String>,
+    pub permutation_commitments: Vec<String>,
+    pub non_residues: Vec<String>,
+    pub g2_elements: Vec<String>,
 }

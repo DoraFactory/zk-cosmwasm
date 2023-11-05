@@ -5,13 +5,20 @@ use super::state::{Config, ProofInfo, VkeyStr, ZkeysStr, CONFIG, PROVERINFO, PRO
 use crate::coin_helpers::assert_sent_sufficient_coin;
 use crate::state::ProofStr;
 use crate::ContractError;
+// use bellman_ce::bn256::G1Uncompressed;
 use cosmwasm_std::{
     entry_point, to_binary, Binary, Deps, DepsMut, Env, MessageInfo, Response, StdError, StdResult,
 };
 use pairing_ce::bn256::Bn256;
-// use ff_ce::PrimeField as Fr;
-// use bellman_ce_verifier::{prepare_verifying_key, verify_proof};
-
+use ff_ce::{PrimeField as Fr};
+use bellman_ce::ScalarEngine;
+use pairing_ce::from_hex;
+use bellman_ce::plonk::better_cs::verifier::verify;
+use bellman_ce::plonk::better_cs::cs::{PlonkConstraintSystemParams, PlonkCsWidth4WithNextStepParams};
+use pairing_ce::Engine;
+use pairing_ce::bn256::{G1Affine, G1Uncompressed, G2Affine, G2Uncompressed};
+use bellman_ce::plonk::better_cs::verifier::verify as plonk_verify;
+use bellman_ce::plonk::commitments::transcript::keccak_transcript::RollingKeccakTranscript;
 // instantiate the contract
 #[cfg_attr(not(feature = "library"), entry_point)]
 pub fn instantiate(
@@ -30,12 +37,16 @@ pub fn instantiate(
 }
 
 #[cfg_attr(not(feature = "library"), entry_point)]
-pub fn execute(
+pub fn execute<E, P>(
     deps: DepsMut,
     env: Env,
     info: MessageInfo,
     msg: ExecuteMsg,
-) -> Result<Response, ContractError> {
+) -> Result<Response, ContractError> 
+where
+    E: Engine<G1Affine = G1Affine, G2Affine = G2Affine>,
+    P: PlonkConstraintSystemParams<E>,
+{
     match msg {
         ExecuteMsg::Zkeys {
             public_signal,
@@ -46,7 +57,7 @@ pub fn execute(
             permutation_commitments,
             non_residues,
             g2_elements,
-        } => execute_set_zkeys(
+        } => execute_set_zkeys::<E, P>(
             deps,
             env,
             info,
@@ -75,7 +86,7 @@ pub fn execute(
             permutation_polynomials_at_z,
             opening_at_z_proof,
             opening_at_z_omega_proof,
-        } => execute_publish_proof(
+        } => execute_publish_proof::<E, P>(
             deps, 
             env, 
             info, 
@@ -98,7 +109,7 @@ pub fn execute(
     }
 }
 
-pub fn execute_set_zkeys(
+pub fn execute_set_zkeys<E, P>(
     deps: DepsMut,
     _env: Env,
     info: MessageInfo,
@@ -110,22 +121,27 @@ pub fn execute_set_zkeys(
     permutation_commitments: Vec<String>,
     non_residues: Vec<String>,
     g2_elements: Vec<String>,
-) -> Result<Response, ContractError> {
+) -> Result<Response, ContractError> 
+where
+    E: Engine<G1Affine = G1Affine, G2Affine = G2Affine>,
+    P: PlonkConstraintSystemParams<E>,
+{
     let config = CONFIG.load(deps.storage)?;
     assert_sent_sufficient_coin(&info.funds, config.zkeys_price)?;
     // address
     // let key = info.sender.as_str().as_bytes();
     let vkeys = VkeyStr {
-/*         alpha_1: hex::decode(vk_alpha1).map_err(|_| ContractError::HexDecodingError{})?,
-        beta_2: hex::decode(vk_beta_2).map_err(|_| ContractError::HexDecodingError{})?,
-        gamma_2: hex::decode(vk_gamma_2).map_err(|_| ContractError::HexDecodingError{})?,
-        delta_2: hex::decode(vk_delta_2).map_err(|_| ContractError::HexDecodingError{})?,
-        ic0: hex::decode(vk_ic0).map_err(|_| ContractError::HexDecodingError{})?,
-        ic1: hex::decode(vk_ic1).map_err(|_| ContractError::HexDecodingError{})?, */
-
+        n,
+        num_inputs,
+        selector_commitments: selector_commitments.into_iter().map(|x| hex::decode(x).unwrap()).collect(),
+        next_step_selector_commitments: next_step_selector_commitments.into_iter().map(|x| hex::decode(x).unwrap()).collect(),
+        permutation_commitments: permutation_commitments.into_iter().map(|x| hex::decode(x).unwrap()).collect(),
+        non_residues,
+        g2_elements: g2_elements.into_iter().map(|x| hex::decode(x).unwrap()).collect()
     };
 
-    let _ = parse_vkey::<Bn256>(vkeys.clone())?;
+    // jsut check the vkey is valid
+    let _ = parse_vkey::<Bn256, PlonkCsWidth4WithNextStepParams>(vkeys.clone())?;
 
     let zkeys = ZkeysStr {
         vkeys,
@@ -137,14 +153,12 @@ pub fn execute_set_zkeys(
     Ok(Response::default())
 }
 
-pub fn execute_publish_proof(
+pub fn execute_publish_proof<E, P>(
     deps: DepsMut,
     _env: Env,
     info: MessageInfo,
     difficuty_issuer: String,
-    /*     proof_a: String,
-    proof_b: String,
-    proof_c: String, */
+
     num_inputs: usize,
     n: usize,
     input_values: Vec<String>,
@@ -156,10 +170,14 @@ pub fn execute_publish_proof(
     grand_product_at_z_omega: String,
     quotient_polynomial_at_z: String,
     linearization_polynomial_at_z: String,
-    permutation_polynomials_at_z: String,
+    permutation_polynomials_at_z: Vec<String>,
     opening_at_z_proof: String,
     opening_at_z_omega_proof: String,
-) -> Result<Response, ContractError> {
+) -> Result<Response, ContractError> 
+where
+    E: Engine<G1Affine = G1Affine, G2Affine = G2Affine>,
+    P: PlonkConstraintSystemParams<E>,
+{
     let config = CONFIG.load(deps.storage)?;
     assert_sent_sufficient_coin(&info.funds, config.proof_price)?;
 
@@ -179,34 +197,32 @@ pub fn execute_publish_proof(
     let proof_str = ProofStr {
         num_inputs,
         n,
-        input_values: input_values.into_iter().map(|x| )
-
-
-
-
-/*         pi_a: hex::decode(proof_a).map_err(|_| ContractError::HexDecodingError{})?,
-        pi_b: hex::decode(proof_b).map_err(|_| ContractError::HexDecodingError{})?,
-        pi_c: hex::decode(proof_c).map_err(|_| ContractError::HexDecodingError{})?, */
-
+        input_values,
+        wire_commitments: wire_commitments.into_iter().map(|x| hex::decode(x).unwrap()).collect(),
+        grand_product_commitment: hex::decode(grand_product_commitment).map_err(|_| ContractError::HexDecodingError{})?,
+        quotient_poly_commitments: quotient_poly_commitments.into_iter().map(|x| hex::decode(x).unwrap()).collect(),
+        wire_values_at_z,
+        wire_values_at_z_omega,
+        grand_product_at_z_omega,
+        quotient_polynomial_at_z,
+        linearization_polynomial_at_z,
+        permutation_polynomials_at_z,
+        opening_at_z_proof: hex::decode(opening_at_z_proof).map_err(|_| ContractError::HexDecodingError{})?,
+        opening_at_z_omega_proof: hex::decode(opening_at_z_omega_proof).map_err(|_| ContractError::HexDecodingError{})?
     };
 
-    let pof = parse_proof::<Bn256>(proof_str.clone())?;
-    let vkey = parse_vkey::<Bn256>(vkeys_str)?;
-    let pvk = prepare_verifying_key(&vkey);
-    let is_passed = verify_proof(&pvk, &pof, &[Fr::from_str(&public_inputs).unwrap()])
-        .map_err(|_| ContractError::ErrorVerificationKey {})?;
-
-    if is_passed {
-        let proof_info = ProofInfo {
-            proof: proof_str,
-            is_valid: is_passed,
-        };
-        // save the storage
-        PROVERINFO.save(deps.storage, &info.sender, &proof_info)?;
-        PROVERLIST.save(deps.storage, (&issuer, &info.sender), &proof_info)?;
-    } else {
-        return Err(ContractError::InvalidProof {});
-    }
+    let pof = parse_proof::<Bn256, PlonkCsWidth4WithNextStepParams>(proof_str.clone())?;
+    let vkey = parse_vkey::<Bn256, PlonkCsWidth4WithNextStepParams>(vkeys_str)?;
+    
+    let ok = plonk_verify::<_, _, RollingKeccakTranscript<pairing_ce::bn256::Fr>>(&pof, &vkey, None).map_err(|_| ContractError::InvalidProof {})?;
+    println!("验证结果为：{:?}", true);
+    let proof_info = ProofInfo {
+        proof: proof_str,
+        is_valid: ok,
+    };
+    // save the storage
+    PROVERINFO.save(deps.storage, &info.sender, &proof_info)?;
+    PROVERLIST.save(deps.storage, (&issuer, &info.sender), &proof_info)?;
 
     Ok(Response::default())
 }
@@ -223,18 +239,19 @@ pub fn query(deps: Deps, _env: Env, msg: QueryMsg) -> StdResult<Binary> {
     }
 }
 
-/* fn query_issuer_zkeys(deps: Deps, address: String) -> StdResult<ZkeysResponse> {
+fn query_issuer_zkeys(deps: Deps, address: String) -> StdResult<ZkeysResponse> {
     let issuer_addr = deps.api.addr_validate(&address)?;
 
     let zkeys = ZKEYS.load(deps.storage, &issuer_addr)?;
     Ok(ZkeysResponse {
         public_signal: zkeys.public_signal,
-        vk_alpha1: hex::encode(zkeys.vkeys.alpha_1),
-        vk_beta_2: hex::encode(zkeys.vkeys.beta_2),
-        vk_gamma_2: hex::encode(zkeys.vkeys.gamma_2),
-        vk_delta_2: hex::encode(zkeys.vkeys.delta_2),
-        vk_ic0: hex::encode(zkeys.vkeys.ic0),
-        vk_ic1: hex::encode(zkeys.vkeys.ic1),
+        n: zkeys.vkeys.n,
+        num_inputs: zkeys.vkeys.num_inputs,
+        selector_commitments: zkeys.vkeys.selector_commitments.into_iter().map(|x| hex::encode(x)).collect(),
+        next_step_selector_commitments: zkeys.vkeys.next_step_selector_commitments.into_iter().map(|x| hex::encode(x)).collect(),
+        permutation_commitments: zkeys.vkeys.permutation_commitments.into_iter().map(|x| hex::encode(x)).collect(),
+        non_residues: zkeys.vkeys.non_residues,
+        g2_elements: zkeys.vkeys.g2_elements.into_iter().map(|x| hex::encode(x)).collect()
     })
 }
 
@@ -248,10 +265,20 @@ fn query_proof_result(
 
     let proof_info = PROVERLIST.load(deps.storage, (&issuer_addr, &prover_addr))?;
     Ok(ProofResponse {
-        proof_a: hex::encode(proof_info.proof.pi_a),
-        proof_b: hex::encode(proof_info.proof.pi_b),
-        proof_c: hex::encode(proof_info.proof.pi_c),
+         num_inputs: proof_info.proof.num_inputs,
+         n: proof_info.proof.n,
+         input_values: proof_info.proof.input_values,
+         wire_commitments: proof_info.proof.wire_commitments.into_iter().map(|x| hex::encode(x)).collect(),
+         grand_product_commitment: hex::encode(proof_info.proof.grand_product_commitment),
+         quotient_poly_commitments: proof_info.proof.quotient_poly_commitments.into_iter().map(|x| hex::encode(x)).collect(),
+         wire_values_at_z: proof_info.proof.wire_values_at_z,
+         wire_values_at_z_omega: proof_info.proof.wire_values_at_z_omega,
+         grand_product_at_z_omega: proof_info.proof.grand_product_at_z_omega,
+         quotient_polynomial_at_z: proof_info.proof.quotient_polynomial_at_z,
+         linearization_polynomial_at_z: proof_info.proof.linearization_polynomial_at_z,
+         permutation_polynomials_at_z: proof_info.proof.permutation_polynomials_at_z,
+         opening_at_z_proof: hex::encode(proof_info.proof.opening_at_z_proof),
+        opening_at_z_omega_proof: hex::encode(proof_info.proof.opening_at_z_omega_proof),
         is_valid: proof_info.is_valid,
     })
 }
- */

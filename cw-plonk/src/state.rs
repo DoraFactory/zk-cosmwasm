@@ -13,28 +13,28 @@ pub struct ProofStr {
     pub num_inputs: usize,
     pub n: usize,
     pub input_values: Vec<String>,
-    pub wire_commitments: Vec<String>,
-    pub grand_product_commitment: String,
-    pub quotient_poly_commitments: Vec<String>,
+    pub wire_commitments: Vec<Vec<u8>>,
+    pub grand_product_commitment: Vec<u8>,
+    pub quotient_poly_commitments: Vec<Vec<u8>>,
     pub wire_values_at_z: Vec<String>,
     pub wire_values_at_z_omega: Vec<String>,
     pub grand_product_at_z_omega: String,
     pub quotient_polynomial_at_z: String,
     pub linearization_polynomial_at_z: String,
-    pub permutation_polynomials_at_z: String,
-    pub opening_at_z_proof: String,
-    pub opening_at_z_omega_proof: String,
+    pub permutation_polynomials_at_z: Vec<String>,
+    pub opening_at_z_proof: Vec<u8>,
+    pub opening_at_z_omega_proof: Vec<u8>,
 }
 
 #[cw_serde]
 pub struct VkeyStr {
     pub n: usize,
     pub num_inputs: usize,
-    pub selector_commitments: Vec<String>,
-    pub next_step_selector_commitments: Vec<String>,
-    pub permutation_commitments: Vec<String>,
+    pub selector_commitments: Vec<Vec<u8>>,
+    pub next_step_selector_commitments: Vec<Vec<u8>>,
+    pub permutation_commitments: Vec<Vec<u8>>,
     pub non_residues: Vec<String>,
-    pub g2_elements: Vec<String>,
+    pub g2_elements: Vec<Vec<u8>>,
 }
 
 #[cw_serde]
