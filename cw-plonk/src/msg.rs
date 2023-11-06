@@ -87,7 +87,6 @@ pub struct ProofResponse {
 
 #[cw_serde]
 pub struct ZkeysResponse {
-    pub public_signal: String,
     pub n: usize,
     pub num_inputs: usize,
     pub selector_commitments: Vec<String>,

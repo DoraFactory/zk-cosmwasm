@@ -10,7 +10,7 @@ use cosmwasm_std::{
     entry_point, to_binary, Binary, Deps, DepsMut, Env, MessageInfo, Response, StdError, StdResult,
 };
 use pairing_ce::bn256::Bn256;
-use ff_ce::{PrimeField as Fr};
+use ff_ce::PrimeField as Fr;
 use bellman_ce::ScalarEngine;
 use pairing_ce::from_hex;
 use bellman_ce::plonk::better_cs::verifier::verify;
@@ -244,7 +244,6 @@ fn query_issuer_zkeys(deps: Deps, address: String) -> StdResult<ZkeysResponse> {
 
     let zkeys = ZKEYS.load(deps.storage, &issuer_addr)?;
     Ok(ZkeysResponse {
-        public_signal: zkeys.public_signal,
         n: zkeys.vkeys.n,
         num_inputs: zkeys.vkeys.num_inputs,
         selector_commitments: zkeys.vkeys.selector_commitments.into_iter().map(|x| hex::encode(x)).collect(),
