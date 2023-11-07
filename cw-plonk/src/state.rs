@@ -37,11 +37,6 @@ pub struct VkeyStr {
     pub g2_elements: Vec<Vec<u8>>,
 }
 
-#[cw_serde]
-pub struct ZkeysStr {
-    pub vkeys: VkeyStr,
-    pub public_signal: String,
-}
 
 #[cw_serde]
 pub struct ProofInfo {
@@ -53,4 +48,4 @@ pub const CONFIG: Item<Config> = Item::new("config");
 // issuer -> [ porver -> proofInfo ]
 pub const PROVERINFO: Map<&Addr, ProofInfo> = Map::new("prover_info");
 pub const PROVERLIST: Map<(&Addr, &Addr), ProofInfo> = Map::new("prover_list");
-pub const ZKEYS: Map<&Addr, ZkeysStr> = Map::new("zkeys");
+pub const ZKEYS: Map<&Addr, VkeyStr> = Map::new("vkeys");

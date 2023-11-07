@@ -38,4 +38,10 @@ pub enum ContractError {
 
     #[error("invalid hex format")]
     HexDecodingError {},
+
+    #[error("could not convert into prime field")]
+    InvalidPrimeField {},
+
+    #[error("SynthesisError of zk verify")]
+    SynthesisError {},
 }

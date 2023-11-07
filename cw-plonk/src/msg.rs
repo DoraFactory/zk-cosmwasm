@@ -11,7 +11,6 @@ pub struct InstantiateMsg {
 #[cw_serde]
 pub enum ExecuteMsg {
     Zkeys {
-        public_signal: String,
         n: usize,
         num_inputs: usize,
         selector_commitments: Vec<String>,

@@ -75,7 +75,6 @@ mod test_module {
         mock_init_with_price(deps.as_mut(), coin(2, "token"), coin(2, "token"));
         let info = mock_info("alice_key", &[]);
         let msg = ExecuteMsg::Zkeys { 
-            public_signal: "33".to_string(), 
             n: 3,
             num_inputs: 1,
             selector_commitments: [
@@ -118,7 +117,6 @@ mod test_module {
         // alice can register an available name
         let info = mock_info("alice_key", sent);
         let msg = ExecuteMsg::Zkeys { 
-            public_signal: "33".to_string(), 
             n: 3,
             num_inputs: 1,
             selector_commitments: [
@@ -157,12 +155,12 @@ mod test_module {
         // alice can register an available name
         let info = mock_info("alice_key", sent);
         let msg = ExecuteMsg::Zkeys { 
-            public_signal: "33".to_string(), 
             //NOTE: invalid vk_alpha1
             n: 3,
             num_inputs: 1,
             selector_commitments: [
-                "09b3a8742e323fbb6b7e858287af59c6ff997667de6f10136356774a5e93fe872fd1ef45f38c9c0814183b2ca7eba4e2d5d5d7f871bb1a89e96217df74c9833d".to_string(),
+                // NOTE: this is invalid item
+                "0000".to_string(),
                 "40000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000".to_string(),
                 "2b63946d2ccf8529ae7ba5324902e7ee834b19e8dd666b3533850c2ed36d7dfe2738c050f06ba19dd919bbb1e55c408ceadc583bbd190f10f54a9b79bb2b03da".to_string(),
                 "40000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000".to_string(),
@@ -196,7 +194,6 @@ mod test_module {
         // alice can register an available name
         let info = mock_info("alice_key", sent);
         let msg = ExecuteMsg::Zkeys { 
-            public_signal: "30".to_string(), 
             n: 3,
             num_inputs: 1,
             selector_commitments: [
@@ -285,7 +282,7 @@ mod test_module {
             num_inputs: 1,
             n: 3,
             input_values: [
-              "0000000000000000000000000000000000000000000000000000000000000021".to_string()
+              "0000000000000000000000000000000000000000000000000000000000000022".to_string()
             ].to_vec(),
             wire_commitments: [
               "1c7ade6b7b63a79bbdf4380ead5793e175e904e8a659019474f25263121599f70a5f7d13d1d549c1b5fa4695d519dce3567aa336d0ced40ce00e6dd9ad77d8c5".to_string(),
@@ -387,7 +384,8 @@ mod test_module {
             ].to_vec(),
             grand_product_commitment: "2ebc09f9ada0ba725ea8d6c06d4c49e156578fc34388aff597a2ef4c94113eab10c2861217b6f698e334359465f85d23bcd3467a72ccefa92fcdef5cf63bb774".to_string(),
             quotient_poly_commitments: [
-              "1f3e303dc35d69a2886a3831bb88d927273367eda400c1a1195649f7424ce49103668c478ed318e56e3b4f7104877fd0f8255d4a2d39b019cbaba99a0f3285c5".to_string(),
+              // NOTE: This is invalid
+              "19019a506cb3f41e5748e268b32ba946af045a8b4015561fd36e13f001a201ec1fed0f9d8b21e555372e80803621df8c7179f800e37a3cfbcc48ea6c18fe68ba".to_string(),
               "19019a506cb3f41e5748e268b32ba946af045a8b4015561fd36e13f001a201ec1fed0f9d8b21e555372e80803621df8c7179f800e37a3cfbcc48ea6c18fe68ba".to_string(),
               "077cd81c81628f91c271a9c78c5e3c208b16db7af4135e9d4484aeb3fe74949f125e6bf4e044a1ebb40dca3b9f7f6298d5e6cdacc2abbbea467293987d864184".to_string(),
               "40000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000".to_string()
@@ -413,7 +411,7 @@ mod test_module {
             opening_at_z_omega_proof: "2bcf1e082d97cbc88e318001fc8588be7efb1d60624d8917c9babdde02469a402bb78b2bb7e8e76635d6e34674f6255b05558b8a2de52ff00535cec6bccca8a5".to_string()
         };
 
-        assert_eq!(execute::<Bn256, PlonkCsWidth4WithNextStepParams>(deps, mock_env(), info, msg), Err(ContractError::ErrorProof{}));
+        assert_eq!(execute::<Bn256, PlonkCsWidth4WithNextStepParams>(deps, mock_env(), info, msg), Err(ContractError::InvalidProof {}));
     }
 
 
@@ -426,7 +424,7 @@ mod test_module {
 
         // get response
         let value: ZkeysResponse = from_binary(&res).unwrap();
-        println!("zkey is :{:?}", value);
+        // println!("zkey is :{:?}", value);
     }
     
     fn query_verification_result(deps: Deps) {
@@ -437,7 +435,7 @@ mod test_module {
         ).unwrap();
 
         let value: ProofResponse = from_binary(&res).unwrap();
-        print!("proof info is: {:?}", value);
+        // print!("proof info is: {:?}", value);
     }
 
     #[test]
@@ -474,7 +472,7 @@ mod test_module {
         query_verification_result(deps.as_ref());
     }
 
-/*     #[test]
+    #[test]
     fn verify_proof_and_query_works_with_price_with_different_public() {
         let mut deps = mock_dependencies();
         mock_init_with_price(deps.as_mut(), coin(1, "token"), coin(1, "token"));
@@ -483,27 +481,18 @@ mod test_module {
 
         // verify the proof of bob
         mock_bob_publish_proof_to_verify_with_different_public_signal(deps.as_mut(), &[coin(2, "token")]);
-    } */
+    }
 
-/*     #[test]
+    #[test]
     fn verify_proof_and_query_failed_with_invalid_verification_key() {
         let mut deps = mock_dependencies();
         mock_init_with_price(deps.as_mut(), coin(1, "token"), coin(1, "token"));
         // alice set issue difficulty
         mock_alice_set_invalid_zkeys(deps.as_mut(), &[coin(2, "token")]);
-    } */
+    }
 
-/*     #[test]
-    fn verify_proof_and_query_failed_with_error_hex_format_proof() {
-        let mut deps = mock_dependencies();
-        mock_init_with_price(deps.as_mut(), coin(1, "token"), coin(1, "token"));
-        // alice set issue difficulty
-        mock_alice_set_zkeys(deps.as_mut(), &[coin(2, "token")]);
 
-        mock_bob_publish_error_hex_format_proof_to_verify(deps.as_mut(), &[coin(2, "token")]);
-    } */
-
-/*     #[test]
+    #[test]
     fn verify_proof_and_query_failed_with_invalid_proof() {
         let mut deps = mock_dependencies();
         mock_init_with_price(deps.as_mut(), coin(1, "token"), coin(1, "token"));
@@ -512,6 +501,6 @@ mod test_module {
 
         // verify the proof of bob
         mock_bob_publish_invalid_proof_to_verify(deps.as_mut(), &[coin(2, "token")]);
-    } */
+    }
 
 }
