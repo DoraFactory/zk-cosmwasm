@@ -28,13 +28,13 @@ where
 
     c_arr[..pi_c.len()].copy_from_slice(&pi_c[..]);
 
-    let pia_affine: G1Affine = G1Uncompressed::to_g1_uncompressed(a_arr)
+    let pia_affine: G1Affine = G1Uncompressed::from_fixed_bytes(a_arr)
         .into_affine()
         .map_err(|_| ContractError::ErrorProof {})?;
-    let pib_affine: G2Affine = G2Uncompressed::to_g2_uncompressed(b_arr)
+    let pib_affine: G2Affine = G2Uncompressed::from_fixed_bytes(b_arr)
         .into_affine()
         .map_err(|_| ContractError::ErrorProof {})?;
-    let pic_affine: G1Affine = G1Uncompressed::to_g1_uncompressed(c_arr)
+    let pic_affine: G1Affine = G1Uncompressed::from_fixed_bytes(c_arr)
         .into_affine()
         .map_err(|_| ContractError::ErrorProof {})?;
 
@@ -96,22 +96,22 @@ where
 
     ic_1[..vk_ic1.len()].copy_from_slice(&vk_ic1[..]);
 
-    let alpha1_affine = G1Uncompressed::to_g1_uncompressed(alpha1)
+    let alpha1_affine = G1Uncompressed::from_fixed_bytes(alpha1)
         .into_affine()
         .map_err(|_| ContractError::ErrorVerificationKey {})?;
-    let beta2_affine = G2Uncompressed::to_g2_uncompressed(beta2)
+    let beta2_affine = G2Uncompressed::from_fixed_bytes(beta2)
         .into_affine()
         .map_err(|_| ContractError::ErrorVerificationKey {})?;
-    let gamma2_affine = G2Uncompressed::to_g2_uncompressed(gamma2)
+    let gamma2_affine = G2Uncompressed::from_fixed_bytes(gamma2)
         .into_affine()
         .map_err(|_| ContractError::ErrorVerificationKey {})?;
-    let delta2_affine = G2Uncompressed::to_g2_uncompressed(delta2)
+    let delta2_affine = G2Uncompressed::from_fixed_bytes(delta2)
         .into_affine()
         .map_err(|_| ContractError::ErrorVerificationKey {})?;
-    let ic0_affine = G1Uncompressed::to_g1_uncompressed(ic_0)
+    let ic0_affine = G1Uncompressed::from_fixed_bytes(ic_0)
         .into_affine()
         .map_err(|_| ContractError::ErrorVerificationKey {})?;
-    let ic1_affine = G1Uncompressed::to_g1_uncompressed(ic_1)
+    let ic1_affine = G1Uncompressed::from_fixed_bytes(ic_1)
         .into_affine()
         .map_err(|_| ContractError::ErrorVerificationKey {})?;
 
