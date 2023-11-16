@@ -5,10 +5,8 @@ mod test_module {
 
     use crate::contract::{execute, instantiate, query};
     use crate::error::ContractError;
-    use crate::msg::{ExecuteMsg, InstantiateMsg, QueryMsg, ZkeysResponse, ProofResponse};
+    use crate::msg::{ExecuteMsg, InstantiateMsg, ProofResponse, QueryMsg, ZkeysResponse};
     use crate::state::Config;
-    use pairing_ce::bn256::Bn256;
-    use bellman_ce::plonk::better_cs::cs::{PlonkConstraintSystemParams, PlonkCsWidth4WithNextStepParams};
 
     fn assert_config_state(deps: Deps, expected: Config) {
         let res = query(deps, mock_env(), QueryMsg::Config {}).unwrap();
@@ -38,7 +36,6 @@ mod test_module {
             .expect("contract successfully handles InstantiateMsg");
     }
 
-
     #[test]
     fn proper_init_no_fees() {
         let mut deps = mock_dependencies();
@@ -52,7 +49,6 @@ mod test_module {
             },
         );
     }
-
 
     #[test]
     fn proper_init_with_fees() {
@@ -74,7 +70,7 @@ mod test_module {
         let mut deps = mock_dependencies();
         mock_init_with_price(deps.as_mut(), coin(2, "token"), coin(2, "token"));
         let info = mock_info("alice_key", &[]);
-        let msg = ExecuteMsg::Zkeys { 
+        let msg = ExecuteMsg::Zkeys {
             n: 3,
             num_inputs: 1,
             selector_commitments: [
@@ -104,7 +100,7 @@ mod test_module {
                 "12740934ba9615b77b6a49b06fcce83ce90d67b1d0e2a530069e3a7306569a91116da8c89a0d090f3d8644ada33a5f1c8013ba7204aeca62d66d931b99afe6e725222d9816e5f86b4a7dedd00d04acc5c979c18bd22b834ea8c6d07c0ba441db076441042e77b6309644b56251f059cf14befc72ac8a6157d30924e58dc4c172".to_string()
               ].to_vec()
         };
-        let res = execute::<Bn256, PlonkCsWidth4WithNextStepParams>(deps.as_mut(), mock_env(), info, msg);
+        let res = execute(deps.as_mut(), mock_env(), info, msg);
         match res {
             Ok(_) => panic!("set zkeys should fail with insufficient fees"),
             Err(ContractError::InsufficientFundsSend {}) => {}
@@ -112,11 +108,10 @@ mod test_module {
         }
     }
 
-
     fn mock_alice_set_zkeys(deps: DepsMut, sent: &[Coin]) {
         // alice can register an available name
         let info = mock_info("alice_key", sent);
-        let msg = ExecuteMsg::Zkeys { 
+        let msg = ExecuteMsg::Zkeys {
             n: 3,
             num_inputs: 1,
             selector_commitments: [
@@ -147,14 +142,14 @@ mod test_module {
               ].to_vec()
         };
 
-        let _res = execute::<Bn256, PlonkCsWidth4WithNextStepParams>(deps, mock_env(), info, msg)
-            .expect("contract handles set zkeys parameters");
+        let _res =
+            execute(deps, mock_env(), info, msg).expect("contract handles set zkeys parameters");
     }
 
     fn mock_alice_set_invalid_zkeys(deps: DepsMut, sent: &[Coin]) {
         // alice can register an available name
         let info = mock_info("alice_key", sent);
-        let msg = ExecuteMsg::Zkeys { 
+        let msg = ExecuteMsg::Zkeys {
             //NOTE: invalid vk_alpha1
             n: 3,
             num_inputs: 1,
@@ -187,13 +182,16 @@ mod test_module {
               ].to_vec()
         };
 
-        assert_eq!(execute::<Bn256, PlonkCsWidth4WithNextStepParams>(deps, mock_env(), info, msg), Err(ContractError::ErrorVerificationKey{}));
+        assert_eq!(
+            execute(deps, mock_env(), info, msg),
+            Err(ContractError::ErrorVerificationKey {})
+        );
     }
 
     fn mock_alice_set_zkeys_with_different_public_signal(deps: DepsMut, sent: &[Coin]) {
         // alice can register an available name
         let info = mock_info("alice_key", sent);
-        let msg = ExecuteMsg::Zkeys { 
+        let msg = ExecuteMsg::Zkeys {
             n: 3,
             num_inputs: 1,
             selector_commitments: [
@@ -224,14 +222,14 @@ mod test_module {
               ].to_vec()
         };
 
-        let _res = execute::<Bn256, PlonkCsWidth4WithNextStepParams>(deps, mock_env(), info, msg)
-            .expect("contract handles set zkeys parameters");
+        let _res =
+            execute(deps, mock_env(), info, msg).expect("contract handles set zkeys parameters");
     }
 
     fn mock_bob_publish_proof_to_verify(deps: DepsMut, sent: &[Coin]) {
         let info = mock_info("bob_key", sent);
-        let msg = ExecuteMsg::Proof { 
-            difficuty_issuer: "alice_key".to_string(), 
+        let msg = ExecuteMsg::Proof {
+            difficuty_issuer: "alice_key".to_string(),
             num_inputs: 1,
             n: 3,
             input_values: [
@@ -271,14 +269,14 @@ mod test_module {
             opening_at_z_omega_proof: "2bcf1e082d97cbc88e318001fc8588be7efb1d60624d8917c9babdde02469a402bb78b2bb7e8e76635d6e34674f6255b05558b8a2de52ff00535cec6bccca8a5".to_string()
         };
 
-        let _res = execute::<Bn256, PlonkCsWidth4WithNextStepParams>(deps, mock_env(), info, msg)
-            .expect("contract handles verify proof failed");
+        let _res =
+            execute(deps, mock_env(), info, msg).expect("contract handles verify proof failed");
     }
 
     fn mock_bob_publish_proof_to_verify_with_different_public_signal(deps: DepsMut, sent: &[Coin]) {
         let info = mock_info("bob_key", sent);
-        let msg = ExecuteMsg::Proof { 
-            difficuty_issuer: "alice_key".to_string(), 
+        let msg = ExecuteMsg::Proof {
+            difficuty_issuer: "alice_key".to_string(),
             num_inputs: 1,
             n: 3,
             input_values: [
@@ -317,13 +315,16 @@ mod test_module {
             opening_at_z_proof: "1d99eae30fa0e2d2a330647c3245eceb92dcc0fae92308f6003cd628e6694e682ff1a84ee025d6609fa9b16a29ff7e5bf5ea08932bd6813b989a084d28cb72c4".to_string(),
             opening_at_z_omega_proof: "2bcf1e082d97cbc88e318001fc8588be7efb1d60624d8917c9babdde02469a402bb78b2bb7e8e76635d6e34674f6255b05558b8a2de52ff00535cec6bccca8a5".to_string()
         };
-        assert_eq!(execute::<Bn256, PlonkCsWidth4WithNextStepParams>(deps, mock_env(), info, msg), Err(ContractError::InvalidProof {}));
+        assert_eq!(
+            execute(deps, mock_env(), info, msg),
+            Err(ContractError::InvalidProof {})
+        );
     }
 
     fn mock_bob_publish_error_hex_format_proof_to_verify(deps: DepsMut, sent: &[Coin]) {
         let info = mock_info("bob_key", sent);
-        let msg = ExecuteMsg::Proof { 
-            difficuty_issuer: "alice_key".to_string(), 
+        let msg = ExecuteMsg::Proof {
+            difficuty_issuer: "alice_key".to_string(),
             num_inputs: 1,
             n: 3,
             input_values: [
@@ -363,14 +364,16 @@ mod test_module {
             opening_at_z_omega_proof: "2bcf1e082d97cbc88e318001fc8588be7efb1d60624d8917c9babdde02469a402bb78b2bb7e8e76635d6e34674f6255b05558b8a2de52ff00535cec6bccca8a5".to_string()
         };
 
-        assert_eq!(execute::<Bn256, PlonkCsWidth4WithNextStepParams>(deps, mock_env(), info, msg), Err(ContractError::HexDecodingError {}));
+        assert_eq!(
+            execute(deps, mock_env(), info, msg),
+            Err(ContractError::HexDecodingError {})
+        );
     }
-
 
     fn mock_bob_publish_invalid_proof_to_verify(deps: DepsMut, sent: &[Coin]) {
         let info = mock_info("bob_key", sent);
-        let msg = ExecuteMsg::Proof { 
-            difficuty_issuer: "alice_key".to_string(), 
+        let msg = ExecuteMsg::Proof {
+            difficuty_issuer: "alice_key".to_string(),
             num_inputs: 1,
             n: 3,
             input_values: [
@@ -411,28 +414,37 @@ mod test_module {
             opening_at_z_omega_proof: "2bcf1e082d97cbc88e318001fc8588be7efb1d60624d8917c9babdde02469a402bb78b2bb7e8e76635d6e34674f6255b05558b8a2de52ff00535cec6bccca8a5".to_string()
         };
 
-        assert_eq!(execute::<Bn256, PlonkCsWidth4WithNextStepParams>(deps, mock_env(), info, msg), Err(ContractError::InvalidProof {}));
+        assert_eq!(
+            execute(deps, mock_env(), info, msg),
+            Err(ContractError::InvalidProof {})
+        );
     }
-
 
     fn query_zkeys(deps: Deps) {
         let res = query(
-            deps, 
+            deps,
             mock_env(),
-            QueryMsg::IssuerZkeys { address: "alice_key".to_string() }
-        ).unwrap();
+            QueryMsg::IssuerZkeys {
+                address: "alice_key".to_string(),
+            },
+        )
+        .unwrap();
 
         // get response
         let value: ZkeysResponse = from_binary(&res).unwrap();
         // println!("zkey is :{:?}", value);
     }
-    
+
     fn query_verification_result(deps: Deps) {
         let res = query(
             deps,
             mock_env(),
-            QueryMsg::ProofResult { issuer_address: "alice_key".to_string(), prover_address: "bob_key".to_string() }
-        ).unwrap();
+            QueryMsg::ProofResult {
+                issuer_address: "alice_key".to_string(),
+                prover_address: "bob_key".to_string(),
+            },
+        )
+        .unwrap();
 
         let value: ProofResponse = from_binary(&res).unwrap();
         // print!("proof info is: {:?}", value);
@@ -446,7 +458,6 @@ mod test_module {
 
         query_zkeys(deps.as_ref());
     }
-
 
     #[test]
     fn verify_proof_and_query_works_with_no_price() {
@@ -480,7 +491,10 @@ mod test_module {
         mock_alice_set_zkeys_with_different_public_signal(deps.as_mut(), &[coin(2, "token")]);
 
         // verify the proof of bob
-        mock_bob_publish_proof_to_verify_with_different_public_signal(deps.as_mut(), &[coin(2, "token")]);
+        mock_bob_publish_proof_to_verify_with_different_public_signal(
+            deps.as_mut(),
+            &[coin(2, "token")],
+        );
     }
 
     #[test]
@@ -490,7 +504,6 @@ mod test_module {
         // alice set issue difficulty
         mock_alice_set_invalid_zkeys(deps.as_mut(), &[coin(2, "token")]);
     }
-
 
     #[test]
     fn verify_proof_and_query_failed_with_invalid_proof() {
@@ -502,5 +515,4 @@ mod test_module {
         // verify the proof of bob
         mock_bob_publish_invalid_proof_to_verify(deps.as_mut(), &[coin(2, "token")]);
     }
-
 }
